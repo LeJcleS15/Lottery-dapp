@@ -15,7 +15,7 @@ module.exports = {
     },
   },
   mocha:{
-    timeout: 6000000000 // 700 seconds max that we wait for the promise to resolve else we reject 
+    timeout: 6000000000 // 6000000000 seconds max that we wait for any pending executions else we cancel it
   },
   networks: {
     hardhat: {

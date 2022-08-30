@@ -7,8 +7,8 @@ const FRONT_END_ABI_FILE = "../lottery-dapp-frontend/constants/abi.json";
 module.exports = async () => {
   if (process.env.UPDATE_FRONT_END) {
     console.log("Updating front end constants folder content...");
-    updateContractAddress();
-    updateAbi();
+    await updateContractAddress();
+    await updateAbi();
   }
 };
 
