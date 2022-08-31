@@ -18,16 +18,18 @@ const LotteryEntrance = () => {
     chainId in contractAddress ? contractAddress[chainId][1] : null;
   let provider, lottery;
   const getProvider = async () => {
-    provider = new ethers.providers.JsonRpcProvider(
-      process.env.REACT_APP_GOERLI_RPC_URL
-    );
-    lottery = new Contract(lotteryAddress, abi, provider);
-    lottery.on("WinnerPicked", () => {
-      // fires when the "WinnerPicked" event is emitted
-      setWinnerPicked(true);
-      console.log("WinnerPicked!!!");
-      updateUI();
-    });
+    try {
+      provider = new ethers.providers.JsonRpcProvider(process.env.goerli_rpc_url);
+      lottery = new Contract(lotteryAddress, abi, provider);
+      lottery.on("WinnerPicked", () => {
+        // fires when the "WinnerPicked" event is emitted
+        setWinnerPicked(true);
+        console.log("WinnerPicked!!!");
+        updateUI();
+      });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const { runContractFunction: enterLottery, isFetching } = useWeb3Contract({
@@ -60,9 +62,13 @@ const LotteryEntrance = () => {
   });
 
   const handleSuccess = async (tx) => {
-    await tx.wait();
-    handleNewNotification();
-    await updateUI();
+    try {
+      await tx.wait();
+      handleNewNotification();
+      await updateUI();
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const handleNewNotification = (isError = false, error = "") => {
@@ -79,12 +85,16 @@ const LotteryEntrance = () => {
   };
 
   async function updateUI() {
-    const feeInBigNumber = (await getEntranceFee()).toString();
-    const numPlayersInBigNumber = (await getNumberOfPlayers()).toString();
-    const recentWinner = await getRecentWinner();
-    entranceFee.current = feeInBigNumber;
-    setRecentWinner(recentWinner);
-    setNumPlayers(numPlayersInBigNumber);
+    try {
+      const feeInBigNumber = (await getEntranceFee()).toString();
+      const numPlayersInBigNumber = (await getNumberOfPlayers()).toString();
+      const recentWinner = await getRecentWinner();
+      entranceFee.current = feeInBigNumber;
+      setRecentWinner(recentWinner);
+      setNumPlayers(numPlayersInBigNumber);
+    } catch (e) {
+      console.log(e);
+    }
   }
   // keep reading from the blockchain
 
@@ -116,11 +126,15 @@ const LotteryEntrance = () => {
       <button
         className="bg-blue-500 hover:bg-blue-700 p-3 rounded-lg mt-3 text-white font-bold"
         onClick={async () => {
-          setWinnerPicked(false);
-          await enterLottery({
-            onSuccess: handleSuccess, // takes in the transaction response
-            onError: (error) => handleFailure(error), // always add this error handler
-          });
+          try {
+            setWinnerPicked(false);
+            await enterLottery({
+              onSuccess: handleSuccess, // takes in the transaction response
+              onError: (error) => handleFailure(error), // always add this error handler
+            });
+          } catch (error) {
+            console.log(error);
+          }
         }}
         disabled={isFetching}
       >
